@@ -1291,8 +1291,9 @@ public final class MathFunctions
             @SqlType("array(double)") Block yVals)
     {
         checkCondition(yVals.getPositionCount() > 0, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
-        int rightIdx = yVals.getPositionCount() - 1;
-        return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals) DOUBLE.getDouble(yVals, 0), DOUBLE.getDouble(yVals, idx));
+        double left = DOUBLE.getDouble(yVals, 0);
+        double right = DOUBLE.getDouble(yVals, yVals.getPositionCount() - 1);
+        return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
     }
 
     @Description("Linearly interpolate a value x between coordinates")
@@ -1306,8 +1307,8 @@ public final class MathFunctions
             @SqlType("double") double left)
     {
         checkCondition(yVals.getPositionCount() > 0, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
-        int idx = yVals.getPositionCount() - 1;
-        return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, DOUBLE.getDouble(yVals, idx));
+        double right = DOUBLE.getDouble(yVals, yVals.getPositionCount() - 1);
+        return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
     }
 
     @Description("Linearly interpolate a value x between coordinates")
@@ -1335,7 +1336,7 @@ public final class MathFunctions
         checkCondition(xCount == yCount, INVALID_FUNCTION_ARGUMENT, "Arrays must be the same length");
         checkCondition(xCount >= 2, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
         for (int i == 0; i < xCount - 1; i++) {
-            checkCondition(xVals[i] < xVals[i + 1], INVALID_FUNCTION_ARGUMENT, "xVals must be strictly increasing")
+            checkCondition(xVals[i] < xVals[i + 1], INVALID_FUNCTION_ARGUMENT, "xVals must be strictly increasing");
         }
 
         if (x < xVals[0]) {
