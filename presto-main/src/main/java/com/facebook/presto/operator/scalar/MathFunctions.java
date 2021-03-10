@@ -30,6 +30,8 @@ import com.facebook.presto.type.Constraint;
 import com.facebook.presto.type.LiteralParameter;
 import com.google.common.primitives.Doubles;
 import io.airlift.slice.Slice;
+import org.apache.commons.math3.analysis.interpolation.LinearInterpolator;
+import org.apache.commons.math3.analysis.polynomials.PolynomialSplineFunction;
 import org.apache.commons.math3.distribution.BetaDistribution;
 import org.apache.commons.math3.special.Erf;
 
@@ -1277,6 +1279,81 @@ public final class MathFunctions
         }
 
         return lower;
+    }
+
+    @Description("Linearly interpolate a value x between coordinates")
+    @ScalarFunction("linear_interpolate")
+    @SqlNullable
+    @SqlType(StandardTypes.DOUBLE)
+    public static Double linearInterpolate(
+            @SqlType("double") double x,
+            @SqlType("array(double)") Block xVals,
+            @SqlType("array(double)") Block yVals)
+    {
+        checkCondition(yVals.getPositionCount() > 0, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
+        int rightIdx = yVals.getPositionCount() - 1;
+        return linearInterpolate(x, xVals, yVals, DOUBLE.getDouble(yVals, 0), DOUBLE.getDouble(yVals, idx));
+    }
+
+    @Description("Linearly interpolate a value x between coordinates")
+    @ScalarFunction("linear_interpolate")
+    @SqlNullable
+    @SqlType(StandardTypes.DOUBLE)
+    public static Double linearInterpolate(
+            @SqlType("double") double x,
+            @SqlType("array(double)") Block xVals,
+            @SqlType("array(double)") Block yVals,
+            @SqlType("double") double left)
+    {
+        checkCondition(yVals.getPositionCount() > 0, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
+        int idx = yVals.getPositionCount() - 1;
+        return linearInterpolate(x, xVals, yVals, left, DOUBLE.getDouble(yVals, idx));
+    }
+
+    @Description("Linearly interpolate a value x between coordinates")
+    @ScalarFunction("linear_interpolate")
+    @SqlNullable
+    @SqlType(StandardTypes.DOUBLE)
+    public static Double linearInterpolate(
+            @SqlType("double") double x,
+            @SqlType("array(double)") Block xVals,
+            @SqlType("array(double)") Block yVals,
+            @SqlType("double") double left,
+            @SqlType("double") double right)
+    {
+        if (x == null) {
+            return null;
+        }
+
+        int xCount = xVals.getPositionCount();
+        int yCount = yVals.getPositionCount();
+        checkCondition(xCount == yCount, INVALID_FUNCTION_ARGUMENT, "Arrays must be the same length");
+        checkCondition(xCount >= 2, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
+
+        double [] xValsArray = new double[xCount];
+        double [] yValsArray = new double[xCount];
+        for (int i == 0; i < xCount; i++) {
+            xValsArray[i] = DOUBLE.getDouble(xVals, i);
+            yValsArray[i] = DOUBLE.getDouble(yVals, i);
+            if (i < xCount - 1) {
+                checkCondition(
+                    xValsArray[i] < DOUBLE.getDouble(xVals, i + 1),
+                    INVALID_FUNCTION_ARGUMENT,
+                    "xVals must be strictly increasing"
+                );
+            }
+        }
+
+        if (x < xValsArray[0]) {
+            return left;
+        }
+
+        if (x > xValsArray[xCount - 1]) {
+            return right;
+        }
+
+        PolynomialSplineFunction func = (new LinearInterpolator()).interpolate(xValsArray, yValsArray);
+        return func(x);
     }
 
     @Description("cosine similarity between the given sparse vectors")

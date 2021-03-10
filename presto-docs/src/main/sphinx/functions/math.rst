@@ -85,6 +85,29 @@ Mathematical Functions
     The a, b parameters must be positive real numbers and value v must be a real value.
     The value v must lie on the interval [0, 1].
 
+.. function:: linear_interpolate(x, x_vals, y_vals, left, right) -> double
+
+    Compute a linear-interpolated value at x given the coordinates in x_vals, y_vals.
+    The left, right parameters specify the edge case results when x is below or above
+    the range of x_vals, respectively. x_vals must have length greater than 1 and be
+    strictly increasing. y_vals and x_vals must have equal lengths.
+
+.. function:: linear_interpolate(x, x_vals, y_vals, left) -> double
+
+    Compute a linear-interpolated value at x given the coordinates in x_vals, y_vals.
+    The left parameter specifies the edge case result when x is below the range of
+    x_vals. The last value in y_vals is returned in the case when x is above the
+    range of x_vals. x_vals must have length greater than 1 and be strictly
+    increasing. y_vals and x_vals must have equal lengths.
+
+.. function:: linear_interpolate(x, x_vals, y_vals) -> double
+
+    Compute a linear-interpolated value at x given the coordinates in x_vals, y_vals.
+    When x is less than the smallest value in x_vals, the first value in y_vals is
+    returned. Similarly, when x is larger than the largest value in x_vals the last
+    value in y_vals is returned. x_vals must have length greater than 1 and be
+    strictly increasing. y_vals and x_vals must have equal lengths.
+
 .. function:: ln(x) -> double
 
     Returns the natural logarithm of ``x``.
@@ -166,7 +189,7 @@ Mathematical Functions
 .. function:: truncate(x, n) -> double
 
     Returns ``x`` truncated to ``n`` decimal places.
-    ``n`` can be negative to truncate ``n`` digits left of the decimal point. 
+    ``n`` can be negative to truncate ``n`` digits left of the decimal point.
 
     Example:
     ``truncate(REAL '12.333', -1)`` -> result is 10.0
