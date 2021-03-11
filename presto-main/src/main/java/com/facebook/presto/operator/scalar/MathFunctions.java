@@ -1335,9 +1335,10 @@ public final class MathFunctions
         int yCount = yVals.length;
         checkCondition(xCount == yCount, INVALID_FUNCTION_ARGUMENT, "Arrays must be the same length");
         checkCondition(xCount >= 2, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
-        checkCondition(!DOUBLE.isNaN(x), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
+        checkCondition(!Double.isNaN(x), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
         for (int i = 0; i < xCount; i++) {
-            checkCondition(!DOUBLE.isNan(xVals[i]) && !DOUBLE.isNaN(yVals[i]), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
+            checkCondition(!Double.isNaN(xVals[i]) && !Double.isInfinite(xVals[i]), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
+            checkCondition(!Double.isNaN(yVals[i]) && !Double.isInfinite(yVals[i]), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
             if (i < xCount - 1) {
                 checkCondition(xVals[i] < xVals[i + 1], INVALID_FUNCTION_ARGUMENT, "xVals must be strictly increasing");
             }
