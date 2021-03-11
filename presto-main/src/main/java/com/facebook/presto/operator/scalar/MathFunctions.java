@@ -1325,7 +1325,7 @@ public final class MathFunctions
         return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
     }
 
-    private static double linearInterpolateImpl(double x, double [] xVals, double [] yVals, double left, double right)
+    private static double linearInterpolateImpl(double x, double[] xVals, double[] yVals, double left, double right)
     {
         if (x == null || x_vals == null || y_vals == null) {
             return null;
@@ -1336,7 +1336,7 @@ public final class MathFunctions
         checkCondition(xCount == yCount, INVALID_FUNCTION_ARGUMENT, "Arrays must be the same length");
         checkCondition(xCount >= 2, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
         checkCondition(!DOUBLE.isNaN(x), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
-        for (int i == 0; i < xCount; i++) {
+        for (int i = 0; i < xCount; i++) {
             checkCondition(!DOUBLE.isNan(xVals[i]) && !DOUBLE.isNaN(yVals[i]), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
             if (i < xCount - 1) {
                 checkCondition(xVals[i] < xVals[i + 1], INVALID_FUNCTION_ARGUMENT, "xVals must be strictly increasing");
@@ -1363,7 +1363,7 @@ public final class MathFunctions
             if (b.isNull(i)) {
                 return null;
             }
-            buf[i] = DOUBLE.getDouble(b,i);
+            buf[i] = DOUBLE.getDouble(b, i);
         }
         return buf;
     }
