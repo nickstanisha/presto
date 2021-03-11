@@ -1290,7 +1290,7 @@ public final class MathFunctions
             @SqlType("array(double)") Block xVals,
             @SqlType("array(double)") Block yVals)
     {
-        checkCondition(yVals.getPositionCount() > 0, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
+        checkCondition(yVals.getPositionCount() > 1, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
         double left = DOUBLE.getDouble(yVals, 0);
         double right = DOUBLE.getDouble(yVals, yVals.getPositionCount() - 1);
         return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
@@ -1306,7 +1306,7 @@ public final class MathFunctions
             @SqlType("array(double)") Block yVals,
             @SqlType("double") double left)
     {
-        checkCondition(yVals.getPositionCount() > 0, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
+        checkCondition(yVals.getPositionCount() > 1, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
         double right = DOUBLE.getDouble(yVals, yVals.getPositionCount() - 1);
         return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
     }
