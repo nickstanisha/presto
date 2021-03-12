@@ -1281,92 +1281,40 @@ public final class MathFunctions
         return lower;
     }
 
-    @Description("Linearly interpolate a value x between coordinates")
+    @Description("Linearly interpolate a value at x given coordinates")
     @ScalarFunction("linear_interpolate")
     @SqlNullable
     @SqlType(StandardTypes.DOUBLE)
     public static Double linearInterpolate(
-            @SqlType("double") double x,
-            @SqlType("array(double)") Block xVals,
-            @SqlType("array(double)") Block yVals)
+            @SqlType(StandardTypes.DOUBLE) double x,
+            @SqlType("array(double)") Block xArray,
+            @SqlType("array(double)") Block yArray)
     {
-        checkCondition(yVals.getPositionCount() > 1, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
-        double left = DOUBLE.getDouble(yVals, 0);
-        double right = DOUBLE.getDouble(yVals, yVals.getPositionCount() - 1);
-        return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
-    }
-
-    @Description("Linearly interpolate a value x between coordinates")
-    @ScalarFunction("linear_interpolate")
-    @SqlNullable
-    @SqlType(StandardTypes.DOUBLE)
-    public static Double linearInterpolate(
-            @SqlType("double") double x,
-            @SqlType("array(double)") Block xVals,
-            @SqlType("array(double)") Block yVals,
-            @SqlType("double") double left)
-    {
-        checkCondition(yVals.getPositionCount() > 1, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
-        double right = DOUBLE.getDouble(yVals, yVals.getPositionCount() - 1);
-        return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
-    }
-
-    @Description("Linearly interpolate a value x between coordinates")
-    @ScalarFunction("linear_interpolate")
-    @SqlNullable
-    @SqlType(StandardTypes.DOUBLE)
-    public static Double linearInterpolate(
-            @SqlType("double") double x,
-            @SqlType("array(double)") Block xVals,
-            @SqlType("array(double)") Block yVals,
-            @SqlType("double") double left,
-            @SqlType("double") double right)
-    {
-        return linearInterpolateImpl(x, blockToDoubleArray(xVals), blockToDoubleArray(yVals), left, right);
-    }
-
-    private static double linearInterpolateImpl(double x, double[] xVals, double[] yVals, double left, double right)
-    {
-        if (x == null || x_vals == null || y_vals == null) {
-            return null;
-        }
-
-        int xCount = xVals.length;
-        int yCount = yVals.length;
+        int xCount = xArray.getPositionCount();
+        int yCount = yArray.getPositionCount();
         checkCondition(xCount == yCount, INVALID_FUNCTION_ARGUMENT, "Arrays must be the same length");
         checkCondition(xCount >= 2, INVALID_FUNCTION_ARGUMENT, "Arrays must have length >= 2");
-        checkCondition(!Double.isNaN(x), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
+        checkCondition(!Double.isNaN(x) && !Double.isInfinite(x), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
+
+        double[] xPrimitiveArray = new double[xCount];
+        double[] yPrimitiveArray = new double[xCount];
         for (int i = 0; i < xCount; i++) {
-            checkCondition(!Double.isNaN(xVals[i]) && !Double.isInfinite(xVals[i]), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
-            checkCondition(!Double.isNaN(yVals[i]) && !Double.isInfinite(yVals[i]), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
-            if (i < xCount - 1) {
-                checkCondition(xVals[i] < xVals[i + 1], INVALID_FUNCTION_ARGUMENT, "xVals must be strictly increasing");
-            }
-        }
-
-        if (x < xVals[0]) {
-            return left;
-        }
-
-        if (x > xVals[xCount - 1]) {
-            return right;
-        }
-
-        PolynomialSplineFunction func = (new LinearInterpolator()).interpolate(xVals, yVals);
-        return func(x);
-    }
-
-    private static double[] blockToDoubleArray(Block b)
-    {
-        int n = b.getPositionCount();
-        double[] buf = new double[n];
-        for (int i = 0; i < n; i++) {
-            if (b.isNull(i)) {
+            if (xArray.isNull(i) || yArray.isNull(i)) {
                 return null;
             }
-            buf[i] = DOUBLE.getDouble(b, i);
+            Double xValue = DOUBLE.getDouble(xArray, i);
+            Double yValue = DOUBLE.getDouble(yArray, i);
+            checkCondition(!Double.isNaN(xValue) && !Double.isInfinite(xValue), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
+            checkCondition(!Double.isNaN(yValue) && !Double.isInfinite(yValue), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
+            if (i < xCount - 1) {
+                checkCondition(xValue < DOUBLE.getDouble(xArray, i + 1), INVALID_FUNCTION_ARGUMENT, "x array must be strictly increasing");
+            }
+            xPrimitiveArray[i] = xValue;
+            yPrimitiveArray[i] = yValue;
         }
-        return buf;
+
+        PolynomialSplineFunction func = (new LinearInterpolator()).interpolate(xPrimitiveArray, yPrimitiveArray);
+        return func.value(x);
     }
 
     @Description("cosine similarity between the given sparse vectors")
