@@ -85,27 +85,16 @@ Mathematical Functions
     The a, b parameters must be positive real numbers and value v must be a real value.
     The value v must lie on the interval [0, 1].
 
-.. function:: linear_interpolate(x, x_vals, y_vals) -> double
+.. function:: linear_interpolate(x, x_array, y_array) -> double
 
-    Compute a linear-interpolated value at x given the coordinates in ``x_vals``, ``y_vals``.
-
-.. function:: linear_interpolate(x, x_vals, y_vals, left) -> double
-
-    Compute a linear-interpolated value at x given the coordinates in ``x_vals``, ``y_vals``.
-
-.. function:: linear_interpolate(x, x_vals, y_vals, left, right) -> double
-
-    Compute a linear-interpolated value at x given the coordinates in ``x_vals``, ``y_vals``.
-    The ``left``, ``right`` parameters specify the edge case results when ``x`` is below or
-    above the range of ``x_vals``, respectively. If not specified, the first value in
-    ``y_vals`` will be returned for the left edge case, and the last value of ``y_vals``
-    will be returned for the right edge case. ``x_vals`` must have length greater than 1
-    and be strictly increasing. ``y_vals`` and ``x_vals`` must have equal lengths.
-
-    Example:
-    ``linear_interpolate(3, array[2, 4], array[1, 2])`` -> result is 1.5
-    ``linear_interpolate(-2, array[2, 4], array[1, 2])`` -> result is 1.0
-    ``linear_interpolate(-2, array[2, 4], array[1, 2], NULL)`` -> result is NULL
+    Compute a linear-interpolated y value value at ``x`` given the coordinates in
+    ``x_array`` and ``y_array``. ``x_array`` and ``y_array`` must be arrays of
+    equal length, and that length must be >= 2. ``x_array`` additionally must
+    be strictly increasing. NULL values in ``y_array`` will result in the function
+    returning NULL whereas NULL values in ``x_array`` are invalid due to the
+    strictly increasing condition. If ``x`` is below the range of ``x_array`` then
+    the first value in ``y_array`` is returned, cast to a double. If it is above
+    then the last value in ``y_array`` will be returned.
 
 .. function:: ln(x) -> double
 

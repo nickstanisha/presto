@@ -1298,12 +1298,11 @@ public final class MathFunctions
 
         double[] xPrimitiveArray = new double[xCount];
         double[] yPrimitiveArray = new double[xCount];
+        boolean yIsNull = false;
         for (int i = 0; i < xCount; i++) {
-            if (xArray.isNull(i) || yArray.isNull(i)) {
-                return null;
-            }
             Double xValue = DOUBLE.getDouble(xArray, i);
             Double yValue = DOUBLE.getDouble(yArray, i);
+            checkCondition(!xArray.isNull(i), INVALID_FUNCTION_ARGUMENT, "x array must be strictly increasing");
             checkCondition(!Double.isNaN(xValue) && !Double.isInfinite(xValue), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
             checkCondition(!Double.isNaN(yValue) && !Double.isInfinite(yValue), INVALID_FUNCTION_ARGUMENT, "NaNs not supported");
             if (i < xCount - 1) {
@@ -1311,6 +1310,19 @@ public final class MathFunctions
             }
             xPrimitiveArray[i] = xValue;
             yPrimitiveArray[i] = yValue;
+            yIsNull = yIsNull || yArray.isNull(i);
+        }
+
+        if (yIsNull) {
+            return null;
+        }
+
+        if (x < xPrimitiveArray[0]) {
+            return yPrimitiveArray[0];
+        }
+
+        if (x > xPrimitiveArray[xCount - 1]) {
+            return yPrimitiveArray[xCount - 1];
         }
 
         PolynomialSplineFunction func = (new LinearInterpolator()).interpolate(xPrimitiveArray, yPrimitiveArray);
